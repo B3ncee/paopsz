@@ -18,6 +18,12 @@ function UserManagement({ users, currentUser }) {
   const [role, setRole] = useState('patrol');
   const [error, setError] = useState('');
 
+  const generatePassword = () => {
+    const length = 8;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    return Array.from({ length }, () => charset.charAt(Math.floor(Math.random() * charset.length))).join('');
+  };
+
   const handleAddUser = async (e) => {
     e.preventDefault();
     if (!name || !email || !role) return;
@@ -29,9 +35,17 @@ function UserManagement({ users, currentUser }) {
         email,
         role,
         status: 'inactive',
+        mustChangePassword: true, // Jelszóváltoztatás kötelező
       };
-      // A UID mező itt üresen marad, mert a felhasználót nem az Auth-ban hozzuk létre
-      await addUserProfile(null, profileData);
+
+      // Ez a metódus csak a Firestore profilt hozza létre.
+      // A felhasználónak a Firebase Console-ban kell létrehozni a fiókot
+      // a generált jelszóval, vagy egy "elfelejtett jelszó" emailt kell neki küldeni.
+      // A kliensoldali biztonságos létrehozás bonyolultabb.
+      const generatedPassword = generatePassword();
+      alert(`Felhasználó létrehozva!\nEmail: ${email}\nIdeiglenes jelszó: ${generatedPassword}\n\nFONTOS: A felhasználónak a Firebase Authentication-ben is létre kell hozni ezzel a jelszóval, vagy jelszó-visszaállítást kell kérnie!`);
+
+      await addUserProfile(profileData);
       setModalOpen(false);
       setName('');
       setEmail('');

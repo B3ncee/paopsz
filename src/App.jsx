@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
 import PatrolView from './components/PatrolView';
 import FirstTimeSetup from './components/FirstTimeSetup';
+import ForcePasswordChange from './components/ForcePasswordChange';
 import { streamUsers, streamMissions, streamPatrolUnits, streamPatrolLocations, streamLogs, logOut } from './storageService.js';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase.js';
@@ -74,6 +75,11 @@ function App() {
 
   if (!user) {
     return <Login onLoginSuccess={setUser} allUsers={users} />;
+  }
+
+  // Ha a felhasználónak jelszót kell változtatnia
+  if (user.mustChangePassword) {
+    return <ForcePasswordChange user={user} />;
   }
 
   // A szerepkör alapján döntjük el, mit mutatunk

@@ -1,0 +1,113 @@
+.sidebar-layout {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    transition: grid-template-columns 0.3s ease-in-out;
+}
+
+.sidebar-nav {
+    width: 260px;
+    background-color: #1e1e2d;
+    color: #a5a4bf;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease-in-out;
+    flex-shrink: 0;
+}
+
+.sidebar-layout.collapsed .sidebar-nav {
+    width: 80px;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid #2a2a3e;
+    height: 50px; /* Match Navbar height */
+    box-sizing: border-box;
+}
+
+.sidebar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.toggle-button {
+    background: none;
+    border: none;
+    color: #a5a4bf;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    gap: 1rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #4a4a6a;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.user-name {
+    font-weight: bold;
+    color: #fff;
+}
+
+.user-role {
+    font-size: 0.8em;
+}
+
+.sidebar-menu {
+    flex-grow: 1;
+    padding-top: 1rem;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    color: #a5a4bf;
+    text-decoration: none;
+    font-size: 1.1rem;
+    white-space: nowrap;
+}
+
+.menu-item:hover {
+    background-color: #2a2a3e;
+    color: #fff;
+}
+
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid #2a2a3e;
+}
+
+.sidebar-content {
+    flex-grow: 1;
+    background-color: #151521;
+    overflow: auto;
+    display: flex; /* Hogy a belső tartalom (pl. Dashboard) kitöltse */
+}

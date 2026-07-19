@@ -1,6 +1,6 @@
 import { db, auth } from './firebase';
 import { collection, onSnapshot, addDoc, doc, updateDoc, setDoc, getDocs, query, where, deleteDoc, serverTimestamp, orderBy } from 'firebase/firestore';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updatePassword } from "firebase/auth";
 
 // --- Valós idejű adatfolyamok ---
 const streamData = (collectionName, callback) => {
@@ -82,6 +82,17 @@ export const logIn = async (email, password) => {
 
 export const logOut = () => signOut(auth);
 
+export const forceUpdatePassword = async (newPassword) => {
+    if (auth.currentUser) {
+        await updatePassword(auth.currentUser, newPassword);
+        // Jelszóváltoztatás jelző törlése a Firestore-ból
+        const userProfileRef = doc(db, 'users', auth.currentUser.uid); // Feltételezzük, hogy a doc ID a uid
+        await updateDoc(userProfileRef, { mustChangePassword: false });
+    } else {
+        throw new Error("Nincs bejelentkezett felhasználó.");
+    }
+};
+
 export const addLog = async (message) => {
   await addDoc(collection(db, 'logs'), {
     message,
@@ -89,12 +100,8 @@ export const addLog = async (message) => {
   });
 };
 
-export const addUserProfile = async (uid, profileData) => { // uid can be null
-  const dataToSave = { ...profileData };
-  if (uid) {
-    dataToSave.uid = uid;
-  }
-  const docRef = await addDoc(collection(db, 'users'), dataToSave);
+export const addUserProfile = async (profileData) => {
+  const docRef = await addDoc(collection(db, 'users'), profileData);
   await addLog(`"${profileData.name}" nevű felhasználó létrehozva.`);
   return docRef;
 };
