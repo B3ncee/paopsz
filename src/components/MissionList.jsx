@@ -2,24 +2,24 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './SidePanel.css';
 import Modal from './Modal';
+import { addMission } from '../storageService';
 
-function MissionList({ missions, setMissions, activePatrols }) {
+function MissionList({ missions, activePatrols }) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [newMissionTitle, setNewMissionTitle] = useState('');
   const [assignedTo, setAssignedTo] = useState('');
 
-  const handleAddMission = (e) => {
+  const handleAddMission = async (e) => {
     e.preventDefault();
     if (newMissionTitle.trim() === '' || assignedTo === '') return;
 
     const newMission = {
-      id: Date.now(),
       title: newMissionTitle,
       status: 'new',
-      assignedTo: parseInt(assignedTo, 10),
+      assignedTo: assignedTo, // Firestore-ban a string ID is jó
     };
 
-    setMissions(prevMissions => [...prevMissions, newMission]);
+    await addMission(newMission);
     setNewMissionTitle('');
     setAssignedTo('');
     setModalOpen(false);
@@ -83,7 +83,6 @@ function MissionList({ missions, setMissions, activePatrols }) {
 
 MissionList.propTypes = {
   missions: PropTypes.array.isRequired,
-  setMissions: PropTypes.func.isRequired,
   activePatrols: PropTypes.array.isRequired,
 };
 

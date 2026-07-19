@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './SidePanel.css';
 import Modal from './Modal';
+import { addUser } from '../storageService';
 
 const roleNames = {
   patrol: 'Polgárőr',
@@ -10,19 +11,18 @@ const roleNames = {
   leader: 'Vezér',
 };
 
-function UserManagement({ users, setUsers }) {
+function UserManagement({ users }) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('patrol');
 
-  const handleAddUser = (e) => {
+  const handleAddUser = async (e) => {
     e.preventDefault();
     if (!name || !email || !password || !role) return;
 
     const newUser = {
-      id: Date.now(),
       name,
       email,
       password,
@@ -30,7 +30,7 @@ function UserManagement({ users, setUsers }) {
       status: 'inactive',
     };
 
-    setUsers([...users, newUser]);
+    await addUser(newUser);
     setModalOpen(false);
     setName('');
     setEmail('');
@@ -86,7 +86,6 @@ function UserManagement({ users, setUsers }) {
 
 UserManagement.propTypes = {
   users: PropTypes.array.isRequired,
-  setUsers: PropTypes.func.isRequired,
 };
 
 export default UserManagement;

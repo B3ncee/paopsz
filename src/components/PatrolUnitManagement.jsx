@@ -2,22 +2,22 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './SidePanel.css';
 import Modal from './Modal';
+import { addPatrolUnit } from '../storageService';
 
-function PatrolUnitManagement({ patrolUnits, setPatrolUnits, allUsers }) {
+function PatrolUnitManagement({ patrolUnits, allUsers }) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [unitName, setUnitName] = useState('');
 
-  const handleAddUnit = (e) => {
+  const handleAddUnit = async (e) => {
     e.preventDefault();
     if (!unitName) return;
 
     const newUnit = {
-      id: Date.now(),
       name: unitName,
       members: [], // Kezdetben üres
     };
 
-    setPatrolUnits([...patrolUnits, newUnit]);
+    await addPatrolUnit(newUnit);
     setModalOpen(false);
     setUnitName('');
   };
@@ -53,7 +53,6 @@ function PatrolUnitManagement({ patrolUnits, setPatrolUnits, allUsers }) {
 
 PatrolUnitManagement.propTypes = {
   patrolUnits: PropTypes.array.isRequired,
-  setPatrolUnits: PropTypes.func.isRequired,
   allUsers: PropTypes.array.isRequired,
 };
 

@@ -4,7 +4,7 @@ import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
 import PatrolView from './components/PatrolView';
 import FirstTimeSetup from './components/FirstTimeSetup';
-import { getInitialData, saveData } from './storageService.js';
+import { streamUsers, streamMissions, streamPatrolUnits, streamPatrolLocations } from './storageService.js';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -16,33 +16,23 @@ function App() {
 
   // Adatok betöltése induláskor
   useEffect(() => {
-    const data = getInitialData();
-    setUsers(data.users);
-    setMissions(data.missions);
-    setPatrolUnits(data.patrolUnits);
-    setPatrolLocations(data.patrolLocations);
-    setIsLoading(false); // Betöltés befejezve
+    // Feliratkozás a valós idejű adatfolyamokra
+    const unsubUsers = streamUsers((data) => {
+      setUsers(data);
+      setIsLoading(false); // Akkor fejezzük be a töltést, ha a felhasználók megérkeztek
+    });
+    const unsubMissions = streamMissions(setMissions);
+    const unsubPatrolUnits = streamPatrolUnits(setPatrolUnits);
+    const unsubPatrolLocations = streamPatrolLocations(setPatrolLocations);
 
-    // Figyeljük a localStorage változásait (böngészőfülek közötti kommunikáció)
-    const handleStorageChange = () => {
-      const updatedData = getInitialData();
-      setUsers(updatedData.users);
-      setMissions(updatedData.missions);
-      setPatrolUnits(updatedData.patrolUnits);
-      setPatrolLocations(updatedData.patrolLocations);
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
+    // Leiratkozás, amikor a komponens megszűnik
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      unsubUsers();
+      unsubMissions();
+      unsubPatrolUnits();
+      unsubPatrolLocations();
     };
   }, []);
-
-  // Adatok mentése, ha változnak
-  useEffect(() => {
-    saveData({ users, missions, patrolUnits, patrolLocations });
-  }, [users, missions, patrolUnits, patrolLocations]);
 
   useEffect(() => {
     // Ellenőrizzük, hogy van-e bejelentkezett felhasználó a localStorage-ban
@@ -64,10 +54,7 @@ function App() {
   // Ha nincs még felhasználó, az első beállítást mutatjuk
   if (users.length === 0) {
     return (
-      <FirstTimeSetup
-        setUsers={setUsers}
-        onSetupComplete={setUser}
-      />
+      <FirstTimeSetup onSetupComplete={setUser} />
     );
   }
 
@@ -85,20 +72,14 @@ function App() {
         <Dashboard
           user={user}
           users={users}
-          setUsers={setUsers}
           missions={missions}
-          setMissions={setMissions}
           patrolUnits={patrolUnits}
-          setPatrolUnits={setPatrolUnits}
           patrolLocations={patrolLocations}
         />
       ) : (
         <PatrolView
           user={user}
-          users={users}
-          setUsers={setUsers}
           missions={missions.filter(m => m.assignedTo === user.id)}
-          setPatrolLocations={setPatrolLocations}
         />
       )}
     </div>

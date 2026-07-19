@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { addUser } from '../storageService';
 
-function FirstTimeSetup({ setUsers, onSetupComplete }) {
+function FirstTimeSetup({ onSetupComplete }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleCreateLeader = (e) => {
+  const handleCreateLeader = async (e) => {
     e.preventDefault();
     if (!name || !email || !password) return;
 
     const leaderUser = {
-      id: Date.now(),
       name,
       email,
       password,
@@ -19,15 +19,16 @@ function FirstTimeSetup({ setUsers, onSetupComplete }) {
       status: 'inactive',
     };
 
-    // Hozzáadjuk az új felhasználót a listához
-    setUsers([leaderUser]);
+    // Hozzáadjuk az új felhasználót az adatbázishoz
+    await addUser(leaderUser);
 
     // Bejelentkeztetjük az új felhasználót
+    // Megjegyzés: Az ID-t a Firebase generálja, de a bejelentkezéshez most nem kell,
+    // mert az App.jsx-ben a streamUsers be fogja tölteni az új usert ID-val együtt.
     const loginData = {
-        id: leaderUser.id,
         email: leaderUser.email,
         name: leaderUser.name,
-        role: leaderUser.role
+        role: leaderUser.role,
     };
     localStorage.setItem('user', JSON.stringify(loginData));
     onSetupComplete(loginData);
@@ -69,7 +70,6 @@ function FirstTimeSetup({ setUsers, onSetupComplete }) {
 }
 
 FirstTimeSetup.propTypes = {
-  setUsers: PropTypes.func.isRequired,
   onSetupComplete: PropTypes.func.isRequired,
 };
 

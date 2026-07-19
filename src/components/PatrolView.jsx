@@ -1,20 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import './PatrolView.css';
+import { updateUserStatus, updatePatrolLocation } from '../storageService';
 
-function PatrolView({ user, users, setUsers, missions, setPatrolLocations }) {
-  const currentUser = users.find(u => u.id === user.id);
-  const isOnDuty = currentUser?.status === 'active';
+function PatrolView({ user, missions }) {
+  const [isOnDuty, setIsOnDuty] = useState(false);
   const locationWatcher = useRef(null);
 
-  const toggleDuty = () => {
-    setUsers(currentUsers =>
-      currentUsers.map(u =>
-        u.id === user.id
-          ? { ...u, status: u.status === 'active' ? 'inactive' : 'active' }
-          : u
-      )
-    );
+  const toggleDuty = async () => {
+    const newStatus = !isOnDuty;
+    await updateUserStatus(user.id, newStatus ? 'active' : 'inactive');
+    setIsOnDuty(newStatus);
   };
 
   useEffect(() => {
@@ -29,7 +25,7 @@ function PatrolView({ user, users, setUsers, missions, setPatrolLocations }) {
             location: { lat: latitude, lng: longitude },
             timestamp: Date.now(),
           };
-          setPatrolLocations(prev => ({ ...prev, [user.id]: newLocation }));
+          updatePatrolLocation(user.id, newLocation);
         },
         (error) => {
           console.error("Hiba a pozíció lekérésekor:", error);
@@ -43,11 +39,8 @@ function PatrolView({ user, users, setUsers, missions, setPatrolLocations }) {
         locationWatcher.current = null;
       }
       // Remove location from map
-      setPatrolLocations(prev => {
-        const newState = { ...prev };
-        delete newState[user.id];
-        return newState;
-      });
+      // A pozíció törlését a diszpécser oldalon kezelhetjük, ha a státusz inaktív
+      updatePatrolLocation(user.id, { location: null });
     }
 
     return () => {
@@ -56,7 +49,7 @@ function PatrolView({ user, users, setUsers, missions, setPatrolLocations }) {
         navigator.geolocation.clearWatch(locationWatcher.current);
       }
     };
-  }, [isOnDuty, user.id, user.name, setPatrolLocations]);
+  }, [isOnDuty, user.id, user.name]);
 
   return (
     <div className="patrol-view-container">
@@ -80,10 +73,7 @@ function PatrolView({ user, users, setUsers, missions, setPatrolLocations }) {
 
 PatrolView.propTypes = {
   user: PropTypes.object.isRequired,
-  users: PropTypes.array.isRequired,
-  setUsers: PropTypes.func.isRequired,
   missions: PropTypes.array.isRequired,
-  setPatrolLocations: PropTypes.func.isRequired,
 };
 
 export default PatrolView;

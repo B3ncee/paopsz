@@ -1,39 +1,52 @@
-const USERS_KEY = 'paopsz_users';
-const MISSIONS_KEY = 'paopsz_missions';
-const PATROL_UNITS_KEY = 'paopsz_patrol_units';
-const PATROL_LOCATIONS_KEY = 'paopsz_patrol_locations';
+import { db } from './firebase';
+import { collection, onSnapshot, addDoc, doc, updateDoc, setDoc } from 'firebase/firestore';
 
-const initialUsers = [];
-
-const getFromStorage = (key, defaultValue) => {
-  const stored = localStorage.getItem(key);
-  return stored ? JSON.parse(stored) : defaultValue;
+// --- Valós idejű adatfolyamok ---
+const streamData = (collectionName, callback) => {
+  const q = collection(db, collectionName);
+  return onSnapshot(q, (querySnapshot) => {
+    const data = [];
+    querySnapshot.forEach((doc) => {
+      data.push({ id: doc.id, ...doc.data() });
+    });
+    callback(data);
+  });
 };
 
-export const getInitialData = () => {
-  const users = getFromStorage(USERS_KEY, initialUsers);
-  // Biztosítjuk, hogy a felhasználóknak legyen status mezője
-  const usersWithStatus = users.map(u => ({ status: 'inactive', ...u }));
-
-  return {
-    users: usersWithStatus,
-    missions: getFromStorage(MISSIONS_KEY, []),
-    patrolUnits: getFromStorage(PATROL_UNITS_KEY, []),
-    patrolLocations: getFromStorage(PATROL_LOCATIONS_KEY, {}),
-  };
+export const streamUsers = (callback) => streamData('users', callback);
+export const streamMissions = (callback) => streamData('missions', callback);
+export const streamPatrolUnits = (callback) => streamData('patrolUnits', callback);
+export const streamPatrolLocations = (callback) => {
+    const q = collection(db, 'patrolLocations');
+    return onSnapshot(q, (querySnapshot) => {
+        const locations = {};
+        querySnapshot.forEach((doc) => {
+            locations[doc.id] = { id: doc.id, ...doc.data() };
+        });
+        callback(locations);
+    });
 };
 
-export const saveData = (data) => {
-  if (data.users) {
-    localStorage.setItem(USERS_KEY, JSON.stringify(data.users));
-  }
-  if (data.missions) {
-    localStorage.setItem(MISSIONS_KEY, JSON.stringify(data.missions));
-  }
-  if (data.patrolUnits) {
-    localStorage.setItem(PATROL_UNITS_KEY, JSON.stringify(data.patrolUnits));
-  }
-  if (data.patrolLocations) {
-    localStorage.setItem(PATROL_LOCATIONS_KEY, JSON.stringify(data.patrolLocations));
-  }
+// --- Adatmódosító funkciók ---
+
+export const addUser = async (userData) => {
+  await addDoc(collection(db, 'users'), userData);
+};
+
+export const addMission = async (missionData) => {
+  await addDoc(collection(db, 'missions'), missionData);
+};
+
+export const addPatrolUnit = async (unitData) => {
+  await addDoc(collection(db, 'patrolUnits'), unitData);
+};
+
+export const updateUserStatus = async (userId, status) => {
+    const userDocRef = doc(db, 'users', userId);
+    await updateDoc(userDocRef, { status });
+};
+
+export const updatePatrolLocation = async (userId, locationData) => {
+    const locationDocRef = doc(db, 'patrolLocations', userId);
+    await setDoc(locationDocRef, locationData, { merge: true });
 };
