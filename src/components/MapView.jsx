@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'; // <- FONTOS: Ez a sor javítja a térkép kinézetét!
 import L from 'leaflet';
 
@@ -21,11 +21,22 @@ const createPatrolIcon = (name) => {
   });
 };
 
-function MapView({ patrolLocations = {} }) {
-  const position = [47.4979, 19.0402]; // Budapest koordinátái
+function ChangeView({ center, zoom }) {
+  const map = useMap();
+  useEffect(() => {
+    if (center) {
+      map.flyTo(center, zoom || 15);
+    }
+  }, [center, zoom, map]);
+  return null;
+}
+
+function MapView({ patrolLocations = {}, center }) {
+  const defaultPosition = [47.329, 17.468]; // Pápa koordinátái
 
   return (
-    <MapContainer center={position} zoom={13} scrollWheelZoom={true} style={{ flex: 1 }}>
+    <MapContainer center={defaultPosition} zoom={13} scrollWheelZoom={true} style={{ flex: 1 }}>
+      <ChangeView center={center} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -50,6 +61,7 @@ function MapView({ patrolLocations = {} }) {
 
 MapView.propTypes = {
   patrolLocations: PropTypes.object,
+  center: PropTypes.arrayOf(PropTypes.number),
 };
 
 export default MapView;

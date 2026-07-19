@@ -33,6 +33,11 @@
   border-bottom: none;
 }
 
+.item.clickable:hover {
+  background-color: #3f3f3f;
+  cursor: pointer;
+}
+
 .item-role {
   font-size: 0.8em;
   color: #aaa;

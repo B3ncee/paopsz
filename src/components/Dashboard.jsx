@@ -9,6 +9,14 @@ import './Dashboard.css';
 
 function Dashboard({ user, users, missions, patrolUnits, patrolLocations }) {
   const activePatrols = users.filter(u => u.role === 'patrol' && u.status === 'active');
+  const [selectedLocation, setSelectedLocation] = useState(null);
+
+  const handlePatrolSelect = (patrol) => {
+    const locationData = patrolLocations[patrol.id];
+    if (locationData && locationData.location) {
+      setSelectedLocation([locationData.location.lat, locationData.location.lng]);
+    }
+  };
 
   return (
     <div className="dashboard-layout">
@@ -19,7 +27,10 @@ function Dashboard({ user, users, missions, patrolUnits, patrolLocations }) {
           </div>
         )}
         <div className="sidebar-section">
-          <PatrolList patrols={users.filter(u => u.role === 'patrol')} />
+          <PatrolList
+            patrols={users.filter(u => u.role === 'patrol')}
+            onPatrolSelect={handlePatrolSelect}
+          />
         </div>
         <div className="sidebar-section">
           <MissionList
@@ -35,7 +46,7 @@ function Dashboard({ user, users, missions, patrolUnits, patrolLocations }) {
         </div>
       </aside>
       <main className="main-content">
-        <MapView patrolLocations={patrolLocations} />
+        <MapView patrolLocations={patrolLocations} center={selectedLocation} />
       </main>
     </div>
   );
