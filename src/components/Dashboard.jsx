@@ -7,7 +7,7 @@ import UserManagement from './UserManagement';
 import PatrolUnitManagement from './PatrolUnitManagement';
 import './Dashboard.css';
 
-function Dashboard({ user, users, setUsers, missions, setMissions, patrolUnits, setPatrolUnits, patrolLocations }) {
+function Dashboard({ user, users, missions, patrolUnits, patrolLocations }) {
   const activePatrols = users.filter(u => u.role === 'patrol' && u.status === 'active');
 
   return (
@@ -15,7 +15,7 @@ function Dashboard({ user, users, setUsers, missions, setMissions, patrolUnits, 
       <aside className="sidebar">
         {user.role === 'leader' && (
           <div className="sidebar-section">
-            <UserManagement users={users} setUsers={setUsers} />
+            <UserManagement users={users} />
           </div>
         )}
         <div className="sidebar-section">
@@ -24,14 +24,12 @@ function Dashboard({ user, users, setUsers, missions, setMissions, patrolUnits, 
         <div className="sidebar-section">
           <MissionList
             missions={missions}
-            setMissions={setMissions}
             activePatrols={activePatrols}
           />
         </div>
         <div className="sidebar-section">
             <PatrolUnitManagement
               patrolUnits={patrolUnits}
-              setPatrolUnits={setPatrolUnits}
               allUsers={users}
             />
         </div>
@@ -46,11 +44,8 @@ function Dashboard({ user, users, setUsers, missions, setMissions, patrolUnits, 
 Dashboard.propTypes = {
     user: PropTypes.object.isRequired,
     users: PropTypes.array.isRequired,
-    setUsers: PropTypes.func.isRequired,
     missions: PropTypes.array.isRequired,
-    setMissions: PropTypes.func.isRequired,
     patrolUnits: PropTypes.array.isRequired,
-    setPatrolUnits: PropTypes.func.isRequired,
     patrolLocations: PropTypes.object.isRequired,
 };
 
