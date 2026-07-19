@@ -1,0 +1,70 @@
+.side-panel-container {
+  background-color: #2f2f2f;
+  border-radius: 8px;
+  padding: 1rem;
+  color: #ccc;
+}
+
+.side-panel-container h3 {
+  margin-top: 0;
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.5rem;
+}
+
+.item-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.item-list.user-list {
+  margin-bottom: 1rem;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid #3f3f3f;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item-role {
+  font-size: 0.8em;
+  color: #aaa;
+}
+
+.status-indicator {
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8em;
+}
+
+.status-indicator.active {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-indicator.inactive {
+  background-color: #6c757d;
+  color: white;
+}
+
+.add-new-button {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.6rem;
+  background-color: #1a64b7;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-new-button:hover {
+  background-color: #2c79c9;
+}

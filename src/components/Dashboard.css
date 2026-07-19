@@ -1,0 +1,21 @@
+.dashboard-layout {
+  display: flex;
+  flex-grow: 1; /* Kitölti a Navbar alatti teret */
+  height: calc(100vh - 50px); /* Navbar magasságát levonva */
+  background-color: #1e1e1e;
+}
+
+.sidebar {
+  width: 300px;
+  background-color: #252526;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+.main-content {
+  flex-grow: 1;
+  display: flex; /* A MapView flexibilis méretezéséhez */
+}

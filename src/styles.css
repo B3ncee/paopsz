@@ -1,0 +1,171 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 520px;
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  padding: 2rem;
+}
+
+.card.secondary {
+  margin-top: 1.5rem;
+  background: #f9fafb;
+}
+
+h1,
+h2,
+h3 {
+  margin-top: 0;
+}
+
+label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
+input,
+button {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+}
+
+button {
+  cursor: pointer;
+  background: #0f172a;
+  color: white;
+  border-color: transparent;
+  transition: background-color 0.15s ease;
+}
+
+button:hover {
+  background: #111827;
+}
+
+.link-button {
+  margin-top: 1rem;
+  background: transparent;
+  color: #0f172a;
+  border: none;
+  text-decoration: underline;
+}
+
+.error {
+  color: #b91c1c;
+  margin-top: 0.75rem;
+}
+
+.button-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.team-form,
+.teams-list,
+.missions {
+  margin-top: 1.5rem;
+}
+
+.team-item {
+  text-align: left;
+  margin-top: 0.75rem;
+  background: #f8fafc;
+  color: #111827;
+}
+
+.mission-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+/* Police-style alert styles */
+.alert-button {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ef4444 0%, #3b82f6 100%);
+  color: white;
+  font-weight: 800;
+  font-size: 16px;
+  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.2);
+  border: none;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.police-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 0.6rem 1rem;
+  text-align: center;
+  color: white;
+  font-weight: 800;
+  z-index: 70;
+  background: linear-gradient(90deg, #ef4444 0%, #3b82f6 100%);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  animation: policeFlash 1s linear infinite;
+}
+
+@keyframes policeFlash {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.police-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 6, 23, 0.6);
+  z-index: 80;
+}
+
+.police-modal-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: min(520px, 92%);
+  box-shadow: 0 20px 50px rgba(2, 6, 23, 0.4);
+  text-align: center;
+}
+
+.police-modal-card h2 {
+  margin-top: 0;
+}
