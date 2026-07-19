@@ -1,5 +1,5 @@
 import { db, auth } from './firebase';
-import { collection, onSnapshot, addDoc, doc, updateDoc, setDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, doc, updateDoc, setDoc, getDocs, query, where, deleteDoc, serverTimestamp, orderBy } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 // --- Valós idejű adatfolyamok ---
@@ -65,12 +65,28 @@ export const logIn = async (email, password) => {
 
 export const logOut = () => signOut(auth);
 
+export const addLog = async (message) => {
+  await addDoc(collection(db, 'logs'), {
+    message,
+    timestamp: serverTimestamp(),
+  });
+};
+
 export const addUserProfile = async (uid, profileData) => { // uid can be null
   const dataToSave = { ...profileData };
   if (uid) {
     dataToSave.uid = uid;
   }
-  await addDoc(collection(db, 'users'), dataToSave);
+  const docRef = await addDoc(collection(db, 'users'), dataToSave);
+  await addLog(`"${profileData.name}" nevű felhasználó létrehozva.`);
+  return docRef;
+};
+
+export const deleteUserProfile = async (userId, userName) => {
+  // Figyelem: Ez csak a Firestore profilt törli, az Auth felhasználót nem.
+  // A teljes törléshez Cloud Function szükséges.
+  await deleteDoc(doc(db, 'users', userId));
+  await addLog(`"${userName}" nevű felhasználó törölve.`);
 };
 
 export const addMission = async (missionData) => {
@@ -78,7 +94,9 @@ export const addMission = async (missionData) => {
 };
 
 export const addPatrolUnit = async (unitData) => {
-  await addDoc(collection(db, 'patrolUnits'), unitData);
+  const docRef = await addDoc(collection(db, 'patrolUnits'), unitData);
+  await addLog(`"${unitData.name}" nevű egység létrehozva.`);
+  return docRef;
 };
 
 export const updatePatrolUnit = async (unitId, unitData) => {

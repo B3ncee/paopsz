@@ -5,9 +5,10 @@ import PatrolList from './PatrolList';
 import MissionList from './MissionList';
 import UserManagement from './UserManagement';
 import PatrolUnitManagement from './PatrolUnitManagement';
+import LogView from './LogView';
 import './Dashboard.css';
 
-function Dashboard({ user, users, missions, patrolUnits, patrolLocations }) {
+function Dashboard({ user, users, missions, logs, patrolUnits, patrolLocations }) {
   const activePatrols = users.filter(u => u.role === 'patrol' && u.status === 'active');
   const [selectedLocation, setSelectedLocation] = useState(null);
 
@@ -23,7 +24,7 @@ function Dashboard({ user, users, missions, patrolUnits, patrolLocations }) {
       <aside className="sidebar">
         {user.role === 'leader' && (
           <div className="sidebar-section">
-            <UserManagement users={users} />
+            <UserManagement users={users} currentUser={user} />
           </div>
         )}
         <div className="sidebar-section">
@@ -44,6 +45,11 @@ function Dashboard({ user, users, missions, patrolUnits, patrolLocations }) {
               allUsers={users}
             />
         </div>
+        {user.role === 'leader' && (
+          <div className="sidebar-section">
+            <LogView logs={logs} />
+          </div>
+        )}
       </aside>
       <main className="main-content">
         <MapView patrolLocations={patrolLocations} center={selectedLocation} />
@@ -56,6 +62,7 @@ Dashboard.propTypes = {
     user: PropTypes.object.isRequired,
     users: PropTypes.array.isRequired,
     missions: PropTypes.array.isRequired,
+    logs: PropTypes.array.isRequired,
     patrolUnits: PropTypes.array.isRequired,
     patrolLocations: PropTypes.object.isRequired,
 };

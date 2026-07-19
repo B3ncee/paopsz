@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './SidePanel.css';
 import Modal from './Modal';
-import { addUserProfile } from '../storageService';
+import { addUserProfile, deleteUserProfile } from '../storageService';
 
 const roleNames = {
   patrol: 'Polgárőr',
@@ -11,7 +11,7 @@ const roleNames = {
   leader: 'Vezér',
 };
 
-function UserManagement({ users }) {
+function UserManagement({ users, currentUser }) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -42,14 +42,30 @@ function UserManagement({ users }) {
     }
   };
 
+  const handleDeleteUser = async (userToDelete) => {
+    if (window.confirm(`Biztosan törölni szeretnéd "${userToDelete.name}" felhasználót?`)) {
+      try {
+        await deleteUserProfile(userToDelete.id, userToDelete.name);
+      } catch (err) {
+        console.error("Hiba a felhasználó törlésekor:", err);
+        alert("Hiba történt a felhasználó törlése közben.");
+      }
+    }
+  };
+
   return (
     <div className="side-panel-container">
       <h3>Felhasználók</h3>
       <ul className="item-list user-list">
         {users.map(user => (
-          <li key={user.id} className="item">
-            <span className="item-name">{user.name}</span>
-            <span className="item-role">{roleNames[user.role] || user.role}</span>
+          <li key={user.id} className="item user-management-item">
+            <div>
+              <span className="item-name">{user.name}</span>
+              <span className="item-role">{roleNames[user.role] || user.role}</span>
+            </div>
+            {currentUser.id !== user.id && (
+              <button onClick={() => handleDeleteUser(user)} className="remove-button">Törlés</button>
+            )}
           </li>
         ))}
       </ul>
@@ -87,6 +103,7 @@ function UserManagement({ users }) {
 
 UserManagement.propTypes = {
   users: PropTypes.array.isRequired,
+  currentUser: PropTypes.object.isRequired,
 };
 
 export default UserManagement;

@@ -4,13 +4,14 @@ import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
 import PatrolView from './components/PatrolView';
 import FirstTimeSetup from './components/FirstTimeSetup';
-import { streamUsers, streamMissions, streamPatrolUnits, streamPatrolLocations, logOut } from './storageService.js';
+import { streamUsers, streamMissions, streamPatrolUnits, streamPatrolLocations, streamLogs, logOut } from './storageService.js';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase.js';
 
 function App() {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
+  const [logs, setLogs] = useState([]);
   const [missions, setMissions] = useState([]);
   const [patrolUnits, setPatrolUnits] = useState([]);
   const [patrolLocations, setPatrolLocations] = useState({});
@@ -26,6 +27,7 @@ function App() {
     const unsubMissions = streamMissions(setMissions);
     const unsubPatrolUnits = streamPatrolUnits(setPatrolUnits);
     const unsubPatrolLocations = streamPatrolLocations(setPatrolLocations);
+    const unsubLogs = streamLogs(setLogs);
 
     // Leiratkozás, amikor a komponens megszűnik
     return () => {
@@ -33,6 +35,7 @@ function App() {
       unsubMissions();
       unsubPatrolUnits();
       unsubPatrolLocations();
+      unsubLogs();
     };
   }, []);
 
@@ -84,6 +87,7 @@ function App() {
           user={user}
           users={users}
           missions={missions}
+          logs={logs}
           patrolUnits={patrolUnits}
           patrolLocations={patrolLocations}
         />
