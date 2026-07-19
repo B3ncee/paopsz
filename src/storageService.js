@@ -39,6 +39,23 @@ export const streamPatrolLocations = (callback) => {
       });
 };
 
+export const streamLogs = (callback) => {
+  const q = query(collection(db, 'logs'), orderBy('timestamp', 'desc'));
+  return onSnapshot(
+    q,
+    (querySnapshot) => {
+      const data = [];
+      querySnapshot.forEach((doc) => {
+        data.push({ id: doc.id, ...doc.data() });
+      });
+      callback(data);
+    },
+    (error) => {
+      console.error(`Error streaming logs:`, error);
+    }
+  );
+};
+
 // --- Adatmódosító funkciók ---
 
 // --- Authentication Funkciók ---
