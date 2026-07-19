@@ -50,7 +50,7 @@ function App() {
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [users]); // <-- FONTOS: Hozzáadtuk a 'users' tömböt a függőségi listához
 
   const handleLogout = async () => {
     await logOut();
