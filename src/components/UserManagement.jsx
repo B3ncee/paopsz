@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './SidePanel.css';
 import Modal from './Modal';
-import { addUser } from '../storageService';
+import { addUserProfile } from '../storageService';
 
 const roleNames = {
   patrol: 'Polgárőr',
@@ -15,27 +15,31 @@ function UserManagement({ users }) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [role, setRole] = useState('patrol');
+  const [error, setError] = useState('');
 
   const handleAddUser = async (e) => {
     e.preventDefault();
-    if (!name || !email || !password || !role) return;
+    if (!name || !email || !role) return;
+    setError('');
 
-    const newUser = {
-      name,
-      email,
-      password,
-      role,
-      status: 'inactive',
-    };
-
-    await addUser(newUser);
-    setModalOpen(false);
-    setName('');
-    setEmail('');
-    setPassword('');
-    setRole('patrol');
+    try {
+      const profileData = {
+        name,
+        email,
+        role,
+        status: 'inactive',
+      };
+      // A UID mező itt üresen marad, mert a felhasználót nem az Auth-ban hozzuk létre
+      await addUserProfile(null, profileData);
+      setModalOpen(false);
+      setName('');
+      setEmail('');
+      setRole('patrol');
+    } catch (err) {
+      setError(err.message);
+      console.error("Hiba a felhasználó hozzáadásakor:", err);
+    }
   };
 
   return (
@@ -65,10 +69,6 @@ function UserManagement({ users }) {
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="form-group">
-              <label>Jelszó</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            </div>
-            <div className="form-group">
               <label>Szerepkör</label>
               <select value={role} onChange={(e) => setRole(e.target.value)}>
                 <option value="patrol">Járőr</option>
@@ -76,6 +76,7 @@ function UserManagement({ users }) {
                 <option value="coordinator">Koordinátor</option>
               </select>
             </div>
+            {error && <p className="error-message">{error}</p>}
             <button type="submit" className="add-new-button">Létrehozás</button>
           </form>
         </Modal>

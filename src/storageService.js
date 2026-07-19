@@ -1,5 +1,6 @@
-import { db } from './firebase';
-import { collection, onSnapshot, addDoc, doc, updateDoc, setDoc } from 'firebase/firestore';
+import { db, auth } from './firebase';
+import { collection, onSnapshot, addDoc, doc, updateDoc, setDoc, getDocs, query, where } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 // --- Valós idejű adatfolyamok ---
 const streamData = (collectionName, callback) => {
@@ -29,8 +30,36 @@ export const streamPatrolLocations = (callback) => {
 
 // --- Adatmódosító funkciók ---
 
-export const addUser = async (userData) => {
-  await addDoc(collection(db, 'users'), userData);
+// --- Authentication Funkciók ---
+
+export const signUp = async (email, password) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+};
+
+export const logIn = async (email, password) => {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    // A bejelentkezés után le kell kérnünk a felhasználó adatait (pl. szerepkör) a Firestore-ból
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("uid", "==", userCredential.user.uid));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        throw new Error("A felhasználóhoz nem tartozik adatlap a Firestore-ban.");
+    }
+
+    const userDoc = querySnapshot.docs[0];
+    return { id: userDoc.id, ...userDoc.data() };
+};
+
+export const logOut = () => signOut(auth);
+
+export const addUserProfile = async (uid, profileData) => { // uid can be null
+  const dataToSave = { ...profileData };
+  if (uid) {
+    dataToSave.uid = uid;
+  }
+  await addDoc(collection(db, 'users'), dataToSave);
 };
 
 export const addMission = async (missionData) => {

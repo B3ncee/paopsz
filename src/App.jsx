@@ -4,7 +4,9 @@ import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
 import PatrolView from './components/PatrolView';
 import FirstTimeSetup from './components/FirstTimeSetup';
-import { streamUsers, streamMissions, streamPatrolUnits, streamPatrolLocations } from './storageService.js';
+import { streamUsers, streamMissions, streamPatrolUnits, streamPatrolLocations, logOut } from './storageService.js';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebase.js';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -34,17 +36,25 @@ function App() {
     };
   }, []);
 
+  // Figyeljük a bejelentkezési állapot változását
   useEffect(() => {
-    // Ellenőrizzük, hogy van-e bejelentkezett felhasználó a localStorage-ban
-    const loggedInUser = localStorage.getItem('user');
-    if (loggedInUser) {
-      setUser(JSON.parse(loggedInUser));
-    }
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        // Ha van bejelentkezett user, de a profilja még nincs betöltve, megvárjuk
+        const userProfile = users.find(u => u.uid === firebaseUser.uid);
+        if (userProfile) {
+          setUser(userProfile);
+        }
+      } else {
+        setUser(null);
+      }
+    });
+    return () => unsubscribe();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
+  const handleLogout = async () => {
+    await logOut();
+    // A onAuthStateChanged automatikusan null-ra állítja a usert
   };
 
   if (isLoading) {
@@ -54,7 +64,7 @@ function App() {
   // Ha nincs még felhasználó, az első beállítást mutatjuk
   if (users.length === 0) {
     return (
-      <FirstTimeSetup onSetupComplete={setUser} />
+      <FirstTimeSetup />
     );
   }
 

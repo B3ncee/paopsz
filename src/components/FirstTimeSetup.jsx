@@ -1,37 +1,34 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { addUser } from '../storageService';
+import { signUp, addUserProfile } from '../storageService';
 
-function FirstTimeSetup({ onSetupComplete }) {
+function FirstTimeSetup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleCreateLeader = async (e) => {
     e.preventDefault();
     if (!name || !email || !password) return;
+    setError('');
+    try {
+      // 1. Felhasználó létrehozása az Authentication rendszerben
+      const firebaseUser = await signUp(email, password);
 
-    const leaderUser = {
-      name,
-      email,
-      password,
-      role: 'leader',
-      status: 'inactive',
-    };
+      // 2. Felhasználói profil létrehozása a Firestore-ban
+      const profileData = {
+        name,
+        email,
+        role: 'leader',
+        status: 'inactive',
+      };
+      await addUserProfile(firebaseUser.uid, profileData);
 
-    // Hozzáadjuk az új felhasználót az adatbázishoz
-    await addUser(leaderUser);
-
-    // Bejelentkeztetjük az új felhasználót
-    // Megjegyzés: Az ID-t a Firebase generálja, de a bejelentkezéshez most nem kell,
-    // mert az App.jsx-ben a streamUsers be fogja tölteni az új usert ID-val együtt.
-    const loginData = {
-        email: leaderUser.email,
-        name: leaderUser.name,
-        role: leaderUser.role,
-    };
-    localStorage.setItem('user', JSON.stringify(loginData));
-    onSetupComplete(loginData);
+      // Az App.jsx onAuthStateChanged figyelője automatikusan be fogja léptetni
+    } catch (err) {
+      setError(err.message);
+      console.error("Hiba a vezér létrehozásakor:", err);
+    }
   };
 
   return (
@@ -63,14 +60,11 @@ function FirstTimeSetup({ onSetupComplete }) {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        {error && <p className="error-message">{error}</p>}
         <button type="submit">Fiók létrehozása és bejelentkezés</button>
       </form>
     </div>
   );
 }
-
-FirstTimeSetup.propTypes = {
-  onSetupComplete: PropTypes.func.isRequired,
-};
 
 export default FirstTimeSetup;
