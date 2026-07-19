@@ -73,3 +73,30 @@
 .add-new-button:hover {
   background-color: #2c79c9;
 }
+
+.empty-list-text {
+  font-style: italic;
+  color: #888;
+  font-size: 0.9em;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.member-list {
+  margin-bottom: 1.5rem;
+}
+
+.remove-button {
+  background-color: transparent;
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8em;
+}
+
+.modal-divider {
+  border-color: #444;
+  margin: 1.5rem 0;
+}

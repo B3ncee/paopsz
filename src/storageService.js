@@ -5,13 +5,19 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } f
 // --- Valós idejű adatfolyamok ---
 const streamData = (collectionName, callback) => {
   const q = collection(db, collectionName);
-  return onSnapshot(q, (querySnapshot) => {
-    const data = [];
-    querySnapshot.forEach((doc) => {
-      data.push({ id: doc.id, ...doc.data() });
-    });
-    callback(data);
-  });
+  return onSnapshot(
+    q,
+    (querySnapshot) => {
+      const data = [];
+      querySnapshot.forEach((doc) => {
+        data.push({ id: doc.id, ...doc.data() });
+      });
+      callback(data);
+    },
+    (error) => {
+      console.error(`Error streaming ${collectionName}:`, error);
+    }
+  );
 };
 
 export const streamUsers = (callback) => streamData('users', callback);
@@ -19,13 +25,18 @@ export const streamMissions = (callback) => streamData('missions', callback);
 export const streamPatrolUnits = (callback) => streamData('patrolUnits', callback);
 export const streamPatrolLocations = (callback) => {
     const q = collection(db, 'patrolLocations');
-    return onSnapshot(q, (querySnapshot) => {
+    return onSnapshot(
+      q,
+      (querySnapshot) => {
         const locations = {};
         querySnapshot.forEach((doc) => {
             locations[doc.id] = { id: doc.id, ...doc.data() };
         });
         callback(locations);
-    });
+      },
+      (error) => {
+        console.error(`Error streaming patrolLocations:`, error);
+      });
 };
 
 // --- Adatmódosító funkciók ---
@@ -68,6 +79,11 @@ export const addMission = async (missionData) => {
 
 export const addPatrolUnit = async (unitData) => {
   await addDoc(collection(db, 'patrolUnits'), unitData);
+};
+
+export const updatePatrolUnit = async (unitId, unitData) => {
+    const unitDocRef = doc(db, 'patrolUnits', unitId);
+    await updateDoc(unitDocRef, unitData);
 };
 
 export const updateUserStatus = async (userId, status) => {
