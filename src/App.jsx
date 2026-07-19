@@ -61,8 +61,9 @@ function App() {
     return <div>Adatok betöltése...</div>; // Várakozás, amíg az adatok betöltődnek
   }
 
-  // Ha nincs még felhasználó, az első beállítást mutatjuk
-  if (users.length === 0) {
+  // Ha a betöltés befejeződött ÉS nincs felhasználó, akkor mutatjuk az első beállítást.
+  // Ez a feltétel megakadályozza, hogy a kezdeti üres állapotban jelenjen meg.
+  if (!isLoading && users.length === 0) {
     return (
       <FirstTimeSetup />
     );
