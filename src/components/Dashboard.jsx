@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import MapView from './MapView';
 import MissionList from './MissionList';
-import LogViewer from './LogViewer';
+import LogView from './LogView';
 import UserManagement from './UserManagement';
 import DispatcherDutyControl from './DispatcherDutyControl';
 import './Dashboard.css';
@@ -18,7 +18,7 @@ function Dashboard({ user, users, missions, logs, patrolUnits, patrolLocations, 
       case 'missions':
         return <MissionList missions={missions} patrolUnits={patrolUnits} />;
       case 'logs':
-        return <LogViewer logs={logs} />;
+        return <LogView logs={logs} />;
       case 'users':
         if (canManageUsers) {
           return <UserManagement users={users} />;
