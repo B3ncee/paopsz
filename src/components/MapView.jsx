@@ -38,8 +38,8 @@ function MapView({ patrolLocations, patrolUnits, center }) {
   return (
     <MapContainer center={center || [47.4979, 19.0402]} zoom={13} style={{ height: '100%', width: '100%' }}>
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
       />
       {Object.entries(patrolLocations).map(([userId, data]) => {
         if (!data.location) return null;
@@ -49,9 +49,16 @@ function MapView({ patrolLocations, patrolUnits, center }) {
 
         return (
           <Marker key={userId} position={[data.location.lat, data.location.lng]} icon={icon}>
-            <Popup>
-              {data.name}<br />
-              Frissítve: {new Date(data.timestamp).toLocaleTimeString()}
+            <Popup minWidth={150}>
+              <div className="map-popup">
+                <strong className="popup-title">{unit ? unit.name : data.name}</strong>
+                {unit && unit.members && (
+                  <ul className="popup-members">
+                    {unit.members.map((member, index) => <li key={index}>{member.name || member}</li>)}
+                  </ul>
+                )}
+              </div>
+              <div className="popup-footer">Frissítve: {new Date(data.timestamp).toLocaleTimeString()}</div>
             </Popup>
           </Marker>
         );

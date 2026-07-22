@@ -1,16 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { addDoc, deleteDoc, doc, collection } from 'firebase/firestore';
+import { addDoc, deleteDoc, doc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { updatePatrolLocation } from '../storageService';
 
-function DispatcherDutyControl({ user }) {
+function DispatcherDutyControl({ user, patrolUnits }) {
   const [isOnDuty, setIsOnDuty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const patrolUnitRef = useRef(null);
   const locationWatcher = useRef(null);
 
   const patrolUnitsCollection = collection(db, 'patrolUnits');
+
+  // Ellenőrizzük, hogy a felhasználó már szolgálatban van-e a komponens betöltésekor
+  useEffect(() => {
+    const existingUnit = patrolUnits.find(unit => unit.userId === user.id && unit.type === 'dispatcher');
+    if (existingUnit) {
+      setIsOnDuty(true);
+      patrolUnitRef.current = existingUnit.id;
+    }
+    setIsLoading(false);
+  }, [patrolUnits, user.id]);
+
 
   const handleToggleDuty = async () => {
     setIsLoading(true);
@@ -78,6 +89,7 @@ function DispatcherDutyControl({ user }) {
 
 DispatcherDutyControl.propTypes = {
   user: PropTypes.object.isRequired,
+  patrolUnits: PropTypes.array.isRequired,
 };
 
 export default DispatcherDutyControl;

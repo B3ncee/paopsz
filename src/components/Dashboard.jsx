@@ -35,7 +35,7 @@ function Dashboard({ user, users, missions, logs, patrolUnits, patrolLocations, 
     <div className="dashboard-layout">
       <header className="dashboard-header">
         <span className="header-title">Diszpécser Központ</span>
-        <DispatcherDutyControl user={user} />
+        <DispatcherDutyControl user={user} patrolUnits={patrolUnits} />
       </header>
       <div className="dashboard-tabs">
         <button onClick={() => setActiveTab('map')} className={activeTab === 'map' ? 'active' : ''}>Térkép</button>
