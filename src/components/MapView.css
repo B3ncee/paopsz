@@ -1,0 +1,29 @@
+.map-popup .popup-title {
+  font-size: 1.1em;
+  display: block;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.map-popup .popup-members {
+  list-style: none;
+  padding-left: 0;
+  margin: 5px 0;
+}
+
+.map-popup .popup-members li {
+  padding: 2px 0;
+}
+
+.popup-footer {
+  margin-top: 10px;
+  font-size: 0.8em;
+  color: #777;
+  text-align: right;
+}
+
+/* Leaflet alapértelmezett popup paddingjének felülírása */
+.leaflet-popup-content {
+  margin: 10px !important;
+}

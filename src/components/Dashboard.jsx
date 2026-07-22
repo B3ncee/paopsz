@@ -1,76 +1,66 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import MapView from './MapView';
-import PatrolList from './PatrolList';
 import MissionList from './MissionList';
-import PatrolUnitManagement from './PatrolUnitManagement';
-import LogView from './LogView';
+import LogViewer from './LogViewer';
 import UserManagement from './UserManagement';
 import DispatcherDutyControl from './DispatcherDutyControl';
-import PropTypes from 'prop-types';
 import './Dashboard.css';
+import PatrolUnitList from './PatrolUnitList';
 
-function Dashboard({ user, users, missions, logs, patrolUnits, patrolLocations }) {
-  const activePatrols = users.filter(u => u.role === 'patrol' && u.status === 'active');
-  const [selectedLocation, setSelectedLocation] = useState(null);
+function Dashboard({ user, users, missions, logs, patrolUnits, patrolLocations, canManageUsers }) {
+  const [activeTab, setActiveTab] = useState('map');
 
-  const handlePatrolSelect = (patrol) => {
-    const locationData = patrolLocations[patrol.id];
-    if (locationData && locationData.location) {
-      setSelectedLocation([locationData.location.lat, locationData.location.lng]);
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'map':
+        return <MapView patrolLocations={patrolLocations} patrolUnits={patrolUnits} />;
+      case 'missions':
+        return <MissionList missions={missions} patrolUnits={patrolUnits} />;
+      case 'logs':
+        return <LogViewer logs={logs} />;
+      case 'users':
+        if (canManageUsers) {
+          return <UserManagement users={users} />;
+        }
+        return <div>Nincs jogosultságod a felhasználók kezeléséhez.</div>;
+      case 'units':
+        return <PatrolUnitList patrolUnits={patrolUnits} users={users} />;
+      default:
+        return <MapView patrolLocations={patrolLocations} patrolUnits={patrolUnits} />;
     }
   };
 
   return (
     <div className="dashboard-layout">
       <header className="dashboard-header">
-        <h3>Diszpécser Központ</h3>
+        <span className="header-title">Diszpécser Központ</span>
         <DispatcherDutyControl user={user} />
       </header>
-      <aside className="sidebar">
-        {user.role === 'leader' && (
-          <div className="sidebar-section">
-            <UserManagement users={users} currentUser={user} />
-          </div>
+      <div className="dashboard-tabs">
+        <button onClick={() => setActiveTab('map')} className={activeTab === 'map' ? 'active' : ''}>Térkép</button>
+        <button onClick={() => setActiveTab('units')} className={activeTab === 'units' ? 'active' : ''}>Egységek</button>
+        <button onClick={() => setActiveTab('missions')} className={activeTab === 'missions' ? 'active' : ''}>Riasztások</button>
+        <button onClick={() => setActiveTab('logs')} className={activeTab === 'logs' ? 'active' : ''}>Log</button>
+        {canManageUsers && (
+          <button onClick={() => setActiveTab('users')} className={activeTab === 'users' ? 'active' : ''}>Felhasználók</button>
         )}
-        <div className="sidebar-section">
-          <PatrolList
-            patrols={users.filter(u => u.role === 'patrol')}
-            onPatrolSelect={handlePatrolSelect}
-          />
-        </div>
-        <div className="sidebar-section">
-          <MissionList
-            missions={missions}
-            activePatrols={activePatrols}
-          />
-        </div>
-        <div className="sidebar-section">
-            <PatrolUnitManagement
-              patrolUnits={patrolUnits}
-              allUsers={users}
-            />
-        </div>
-        {user.role === 'leader' && (
-          <div className="sidebar-section">
-            <LogView logs={logs} />
-          </div>
-        )}
-      </aside>
+      </div>
       <main className="main-content">
-        <MapView patrolLocations={patrolLocations} center={selectedLocation} />
+        {renderContent()}
       </main>
     </div>
   );
 }
 
 Dashboard.propTypes = {
-    user: PropTypes.object.isRequired,
-    users: PropTypes.array.isRequired,
-    missions: PropTypes.array.isRequired,
-    logs: PropTypes.array.isRequired,
-    patrolUnits: PropTypes.array.isRequired,
-    patrolLocations: PropTypes.object.isRequired,
-    canManageUsers: PropTypes.bool, // Ez a prop már átadásra kerül az App.jsx-ből
+  user: PropTypes.object.isRequired,
+  users: PropTypes.array.isRequired,
+  missions: PropTypes.array.isRequired,
+  logs: PropTypes.array.isRequired,
+  patrolUnits: PropTypes.array.isRequired,
+  patrolLocations: PropTypes.object.isRequired,
+  canManageUsers: PropTypes.bool,
 };
 
 export default Dashboard;

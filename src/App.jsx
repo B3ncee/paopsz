@@ -114,7 +114,7 @@ function App() {
         logs={logs}
         patrolUnits={patrolUnits}
         patrolLocations={patrolLocations}
-        canManageUsers={canManageUsers}
+        canManageUsers={canManageUsers} // Ez a sor már helyes, a hiba a Dashboard.jsx-ben van
         // A szolgálatba állás és telefonkönyv funkciót ide is be kell majd kötni
       />
     );
