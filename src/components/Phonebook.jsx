@@ -11,24 +11,43 @@ function Phonebook({ users, onClose }) {
     patrol: 'Járőr',
   };
 
+  // 1. Csoportosítjuk a felhasználókat szerepkör szerint
+  const groupedUsers = users.reduce((acc, user) => {
+    const role = user.role || 'patrol'; // Ha nincs szerepkör, legyen járőr
+    if (!acc[role]) {
+      acc[role] = [];
+    }
+    acc[role].push(user);
+    return acc;
+  }, {});
+
+  // 2. Meghatározzuk a csoportok sorrendjét
+  const roleOrder = ['leader', 'coordinator', 'patrol'];
+
   return (
     <Modal title="Telefonkönyv" onClose={onClose}>
       <div className="phonebook-container">
-        <ul className="phonebook-list">
-          {users
-            .sort((a, b) => a.fullName.localeCompare(b.fullName)) // Rendezés név szerint
-            .map(user => (
-              <li key={user.id} className="phonebook-item">
-                <div className="user-info">
-                  <span className="user-name">{user.fullName}</span>
-                  <span className="user-role">{roleNames[user.role] || user.role}</span>
-                </div>
-                <div className="user-contact">
-                  <a href={`tel:${user.phoneNumber}`}>{user.phoneNumber}</a>
-                </div>
-              </li>
-          ))}
-        </ul>
+        {roleOrder.map(role => (
+          groupedUsers[role] && (
+            <div key={role} className="phonebook-group">
+              <h3 className="phonebook-group-title">{roleNames[role]}</h3>
+              <ul className="phonebook-list">
+                {groupedUsers[role]
+                  .sort((a, b) => a.fullName.localeCompare(b.fullName)) // Név szerinti rendezés a csoporton belül
+                  .map(user => (
+                    <li key={user.id} className="phonebook-item">
+                      <div className="user-info">
+                        <span className="user-name">{user.fullName}</span>
+                      </div>
+                      <div className="user-contact">
+                        <a href={`tel:${user.phoneNumber}`}>{user.phoneNumber}</a>
+                      </div>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )
+        ))}
       </div>
     </Modal>
   );

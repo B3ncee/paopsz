@@ -1,67 +1,62 @@
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css'; // <- FONTOS: Ez a sor javítja a térkép kinézetét!
+import React, { useMemo } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
-// Javítás a react-leaflet alapértelmezett ikon hibájára
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+// Alapértelmezett (járőr) ikon
+const patrolIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
 });
 
-const createPatrolIcon = (name) => {
-  return L.divIcon({
-    className: 'patrol-marker',
-    html: `<span>${name}</span>`,
-    iconSize: [100, 40],
-    iconAnchor: [50, 20],
-  });
-};
+// Diszpécser ikon (más színnel)
+const dispatcherIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
 
-function ChangeView({ center, zoom }) {
-  const map = useMap();
-  useEffect(() => {
-    if (center) {
-      map.flyTo(center, zoom || 15);
-    }
-  }, [center, zoom, map]);
-  return null;
-}
-
-function MapView({ patrolLocations = {}, center }) {
-  const defaultPosition = [47.329, 17.468]; // Pápa koordinátái
+function MapView({ patrolLocations, patrolUnits, center }) {
+  // Készítünk egy gyorsan kereshető térképet a patrolUnit-okból userId alapján
+  const unitsByUserId = useMemo(() => {
+    return patrolUnits.reduce((acc, unit) => {
+      if (unit.userId) {
+        acc[unit.userId] = unit;
+      }
+      return acc;
+    }, {});
+  }, [patrolUnits]);
 
   return (
-    <MapContainer center={defaultPosition} zoom={13} scrollWheelZoom={true} style={{ flex: 1 }}>
-      <ChangeView center={center} />
+    <MapContainer center={center || [47.4979, 19.0402]} zoom={13} style={{ height: '100%', width: '100%' }}>
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-      {Object.values(patrolLocations).map(patrol => (
-        patrol.location && (
-          <Marker
-            key={patrol.id}
-            position={[patrol.location.lat, patrol.location.lng]}
-            icon={createPatrolIcon(patrol.name)}
-          >
+      {Object.entries(patrolLocations).map(([userId, data]) => {
+        if (!data.location) return null;
+
+        const unit = unitsByUserId[userId];
+        const icon = unit && unit.type === 'dispatcher' ? dispatcherIcon : patrolIcon;
+
+        return (
+          <Marker key={userId} position={[data.location.lat, data.location.lng]} icon={icon}>
             <Popup>
-              {patrol.name}<br />
-              {new Date(patrol.timestamp).toLocaleTimeString()}
+              {data.name}<br />
+              Frissítve: {new Date(data.timestamp).toLocaleTimeString()}
             </Popup>
           </Marker>
-        )
-      ))}
+        );
+      })}
     </MapContainer>
   );
 }
-
-MapView.propTypes = {
-  patrolLocations: PropTypes.object,
-  center: PropTypes.arrayOf(PropTypes.number),
-};
 
 export default MapView;
