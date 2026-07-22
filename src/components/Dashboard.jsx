@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import MapView from './MapView';
 import PatrolList from './PatrolList';
 import MissionList from './MissionList';
-import UserManagement from './UserManagement';
 import PatrolUnitManagement from './PatrolUnitManagement';
 import LogView from './LogView';
+import UserManagement from './UserManagement';
+import DispatcherDutyControl from './DispatcherDutyControl';
+import PropTypes from 'prop-types';
 import './Dashboard.css';
 
 function Dashboard({ user, users, missions, logs, patrolUnits, patrolLocations }) {
@@ -21,6 +22,10 @@ function Dashboard({ user, users, missions, logs, patrolUnits, patrolLocations }
 
   return (
     <div className="dashboard-layout">
+      <header className="dashboard-header">
+        <h3>Diszpécser Központ</h3>
+        <DispatcherDutyControl user={user} />
+      </header>
       <aside className="sidebar">
         {user.role === 'leader' && (
           <div className="sidebar-section">
@@ -65,6 +70,7 @@ Dashboard.propTypes = {
     logs: PropTypes.array.isRequired,
     patrolUnits: PropTypes.array.isRequired,
     patrolLocations: PropTypes.object.isRequired,
+    canManageUsers: PropTypes.bool, // Ez a prop már átadásra kerül az App.jsx-ből
 };
 
 export default Dashboard;

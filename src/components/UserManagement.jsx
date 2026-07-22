@@ -1,126 +1,137 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import './SidePanel.css';
-import Modal from './Modal';
-import { deleteUserProfile } from '../storageService';
-import { createUser } from '../firebase';
+import { createUser, deleteUser } from '../storageService';
+import './UserManagement.css';
 
-const roleNames = {
-  patrol: 'Polgárőr',
-  coordinator: 'Koordinátor',
-  leadership: 'Vezetőség',
-  leader: 'Vezér',
-};
-
-function UserManagement({ users, currentUser }) {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState('patrol');
+function UserManagement({ users }) {
+  const [newUser, setNewUser] = useState({
+    fullName: '',
+    email: '',
+    phoneNumber: '',
+    role: 'patrol',
+  });
+  const [generatedPassword, setGeneratedPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
 
-  const generatePassword = () => {
-    const length = 8;
-    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    return Array.from({ length }, () => charset.charAt(Math.floor(Math.random() * charset.length))).join('');
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewUser({ ...newUser, [name]: value });
   };
 
-  const handleAddUser = async (e) => {
+  const generatePassword = () => {
+    return Math.random().toString(36).slice(-8);
+  };
+
+  const handleCreateUser = async (e) => {
     e.preventDefault();
-    if (!name || !email || !role) return;
     setError('');
+    setIsLoading(true);
+    const tempPassword = generatePassword();
 
     try {
-      const profileData = {
-        name,
-        email,
-        role,
-        status: 'inactive',
-        mustChangePassword: true, // Jelszóváltoztatás kötelező
-      };
-
-      // Ez a metódus csak a Firestore profilt hozza létre.
-      // A felhasználónak a Firebase Console-ban kell létrehozni a fiókot
-      // a generált jelszóval, vagy egy "elfelejtett jelszó" emailt kell neki küldeni.
-      // A kliensoldali biztonságos létrehozás bonyolultabb.
-      const generatedPassword = generatePassword();
-      alert(`Felhasználó létrehozva!\nEmail: ${email}\nIdeiglenes jelszó: ${generatedPassword}\n\nFONTOS: A felhasználónak a Firebase Authentication-ben is létre kell hozni ezzel a jelszóval, vagy jelszó-visszaállítást kell kérnie!`);
-
-      await addUserProfile(profileData);
-      setModalOpen(false);
-      setName('');
-      setEmail('');
-      setRole('patrol');
+      await createUser(
+        newUser.email,
+        tempPassword,
+        newUser.role,
+        newUser.fullName,
+        newUser.phoneNumber
+      );
+      setGeneratedPassword(tempPassword);
+      // Reset form
+      setNewUser({ fullName: '', email: '', phoneNumber: '', role: 'patrol' });
+      setShowAddForm(false);
     } catch (err) {
-      setError(err.message);
-      console.error("Hiba a felhasználó hozzáadásakor:", err);
+      console.error("Hiba a felhasználó létrehozásakor:", err);
+      setError(`Hiba: ${err.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleDeleteUser = async (userToDelete) => {
-    if (window.confirm(`Biztosan törölni szeretnéd "${userToDelete.name}" felhasználót?`)) {
+  const handleDeleteUser = async (userId, userEmail) => {
+    if (window.confirm(`Biztosan törölni szeretnéd a(z) ${userEmail} felhasználót? Ez a művelet nem vonható vissza.`)) {
       try {
-        await deleteUserProfile(userToDelete.id, userToDelete.name);
+        await deleteUser(userId);
+        alert('Felhasználó sikeresen törölve.');
       } catch (err) {
         console.error("Hiba a felhasználó törlésekor:", err);
-        alert("Hiba történt a felhasználó törlése közben.");
+        alert(`Hiba a felhasználó törlésekor: ${err.message}`);
       }
     }
   };
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generatedPassword);
+    alert('Jelszó a vágólapra másolva!');
+  };
+
   return (
-    <div className="side-panel-container">
-      <h3>Felhasználók</h3>
-      <ul className="item-list user-list">
-        {users.map(user => (
-          <li key={user.id} className="item user-management-item">
-            <div>
-              <span className="item-name">{user.name}</span>
-              <span className="item-role">{roleNames[user.role] || user.role}</span>
-            </div>
-            {currentUser.id !== user.id && (
-              <button onClick={() => handleDeleteUser(user)} className="remove-button">Törlés</button>
-            )}
-          </li>
-        ))}
-      </ul>
-      <button className="add-new-button" onClick={() => setModalOpen(true)}>
-        Új felhasználó
+    <div className="user-management-container">
+      <h2>Felhasználók Kezelése</h2>
+
+      {generatedPassword && (
+        <div className="generated-password-info">
+          <p>Felhasználó sikeresen létrehozva! Ideiglenes jelszó:</p>
+          <div className="password-display">
+            <code>{generatedPassword}</code>
+            <button onClick={copyToClipboard} title="Másolás">📋</button>
+          </div>
+          <button onClick={() => setGeneratedPassword('')}>Bezár</button>
+        </div>
+      )}
+
+      <button onClick={() => setShowAddForm(!showAddForm)}>
+        {showAddForm ? 'Mégse' : 'Új felhasználó hozzáadása'}
       </button>
 
-      {isModalOpen && (
-        <Modal title="Új felhasználó létrehozása" onClose={() => setModalOpen(false)}>
-          <form onSubmit={handleAddUser} className="modal-form">
-            <div className="form-group">
-              <label>Név</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-            </div>
-            <div className="form-group">
-              <label>Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div className="form-group">
-              <label>Szerepkör</label>
-              <select value={role} onChange={(e) => setRole(e.target.value)}>
-                <option value="patrol">Járőr</option>
-                <option value="leadership">Vezetőség</option>
-                <option value="coordinator">Koordinátor</option>
-              </select>
-            </div>
-            {error && <p className="error-message">{error}</p>}
-            <button type="submit" className="add-new-button" disabled={isLoading}>
-              {isLoading ? 'Létrehozás...' : 'Létrehozás'}
-            </button>
-          </form>
-        </Modal>
+      {showAddForm && (
+        <form onSubmit={handleCreateUser} className="add-user-form">
+          <h3>Új felhasználó</h3>
+          <input type="text" name="fullName" value={newUser.fullName} onChange={handleInputChange} placeholder="Teljes név" required />
+          <input type="email" name="email" value={newUser.email} onChange={handleInputChange} placeholder="E-mail cím" required />
+          <input type="tel" name="phoneNumber" value={newUser.phoneNumber} onChange={handleInputChange} placeholder="Telefonszám" required />
+          <select name="role" value={newUser.role} onChange={handleInputChange}>
+            <option value="patrol">Járőr</option>
+            <option value="coordinator">Diszpécser</option>
+            <option value="leader">Vezér</option>
+          </select>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'Létrehozás...' : 'Felhasználó létrehozása'}
+          </button>
+          {error && <p className="error-message">{error}</p>}
+        </form>
       )}
+
+      <div className="user-list">
+        <h3>Jelenlegi felhasználók</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Név</th>
+              <th>Email</th>
+              <th>Szerepkör</th>
+              <th>Műveletek</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map(user => (
+              <tr key={user.id}>
+                <td>{user.fullName}</td>
+                <td>{user.email}</td>
+                <td>{user.role}</td>
+                <td>
+                  <button className="delete-button" onClick={() => handleDeleteUser(user.id, user.email)}>
+                    Törlés
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
-
-UserManagement.propTypes = {
-  users: PropTypes.array.isRequired,
-  currentUser: PropTypes.object.isRequired,
-};
 
 export default UserManagement;

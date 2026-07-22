@@ -122,7 +122,7 @@ function App() {
 
   return (
     <div className="app-container">
-      <Navbar user={user} onLogout={handleLogout} />
+      {user && <Navbar user={user} users={users} onLogout={handleLogout} />}
       {renderContent()}
     </div>
   );

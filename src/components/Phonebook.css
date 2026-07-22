@@ -1,0 +1,39 @@
+.phonebook-container {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.phonebook-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.phonebook-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.phonebook-item:last-child {
+    border-bottom: none;
+}
+
+.user-info .user-name {
+    font-weight: bold;
+    display: block;
+}
+
+.user-info .user-role {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.user-contact a {
+    text-decoration: none;
+    color: var(--primary-color);
+    font-weight: 500;
+}
