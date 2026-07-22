@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './SidePanel.css';
 import Modal from './Modal';
-import { addUserProfile, deleteUserProfile } from '../storageService';
+import { deleteUserProfile } from '../storageService';
+import { createUser } from '../firebase';
 
 const roleNames = {
   patrol: 'Polgárőr',
@@ -107,7 +108,9 @@ function UserManagement({ users, currentUser }) {
               </select>
             </div>
             {error && <p className="error-message">{error}</p>}
-            <button type="submit" className="add-new-button">Létrehozás</button>
+            <button type="submit" className="add-new-button" disabled={isLoading}>
+              {isLoading ? 'Létrehozás...' : 'Létrehozás'}
+            </button>
           </form>
         </Modal>
       )}

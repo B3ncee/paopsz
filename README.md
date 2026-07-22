@@ -1,11 +1,13 @@
 # Polgárőr App
 
-Ez egy React + Vite alapú webalkalmazás polgárőrök számára. A projekt célja, hogy segítse a járőrök, koordinátorok és vezetők közötti kommunikációt és feladatkezelést. Az alkalmazás helyi tárolást (`localStorage`) használ a felhasználói adatok mentésére és egy interaktív térképet jelenít meg az OpenStreetMap segítségével.
+Ez egy React + Vite alapú webalkalmazás polgárőrök számára. A projekt célja, hogy segítse a járőrök, koordinátorok és vezetők közötti kommunikációt és feladatkezelést. Az alkalmazás a Google Firebase szolgáltatásait (Authentication, Firestore) használja a valós idejű adatkezeléshez.
 
 ## Funkciók
-- Felhasználói bejelentkezés különböző szerepkörökkel (járőr, koordinátor, vezér).
+- Felhasználói bejelentkezés különböző szerepkörökkel (járőr, koordinátor, vezető).
+- Valós idejű térképes nézet a `react-leaflet` és OpenStreetMap segítségével, ahol a diszpécserek látják az egységek pozícióját.
+- Küldetéskezelés, logolás és felhasználó-adminisztráció.
 - Interaktív térkép a `react-leaflet` és OpenStreetMap segítségével.
-- Helyi adatkezelés, nincs szükség külső adatbázisra vagy szerverre.
+- Valós idejű adatbázis és authentikáció a Firebase segítségével.
 - Reszponzív dizájn, amely mobilon és asztali gépen is használható.
 
 ## Telepítés
@@ -18,10 +20,9 @@ Ez egy React + Vite alapú webalkalmazás polgárőrök számára. A projekt cé
    ```
 
 ## Működés
-- A felhasználók adatai a `localStorage`-ban tárolódnak.
-- Nincs szükség külső szerverre vagy Firebase-re az alapműködéshez.
+- A felhasználók, küldetések és egyéb adatok a Firebase Firestore adatbázisában tárolódnak és valós időben frissülnek.
+- A bejelentkezést a Firebase Authentication kezeli.
 - A térkép OpenStreetMap-et használ `react-leaflet`-tel.
-- A bejelentkezés és a felhasználói szerepkörök helyben vannak kezelve.
 
 ## Minta fiókok
 - `leader@polgaror.hu` / `leader123` (vezér-1)
