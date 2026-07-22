@@ -1,0 +1,91 @@
+.user-management-container {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  margin: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.user-management-container h2,
+.user-management-container h3 {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.user-management-container > button {
+    margin-bottom: 20px;
+}
+
+.add-user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  background-color: #fdfdfd;
+}
+
+.add-user-form input,
+.add-user-form select,
+.add-user-form button {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.user-list table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.user-list th,
+.user-list td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.user-list th {
+  background-color: #f8f8f8;
+  font-weight: 600;
+}
+
+.delete-button {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #c0392b;
+}
+
+.generated-password-info {
+  background-color: #e8f4fd;
+  border: 1px solid #b3d7f0;
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 5px;
+}
+
+.password-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.password-display code {
+  font-family: monospace;
+  font-size: 1.1rem;
+  flex-grow: 1;
+}
