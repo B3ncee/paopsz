@@ -52,7 +52,7 @@ function UserManagement({ users }) {
   const handleDeleteUser = async (userId, userEmail) => {
     if (window.confirm(`Biztosan törölni szeretnéd a(z) ${userEmail} felhasználót? Ez a művelet nem vonható vissza.`)) {
       try {
-        await deleteUser(userId);
+        await deleteUser(userId); // Csak a userId-t adjuk át
         alert('Felhasználó sikeresen törölve.');
       } catch (err) {
         console.error("Hiba a felhasználó törlésekor:", err);

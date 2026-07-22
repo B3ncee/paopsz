@@ -17,12 +17,13 @@ function FirstTimeSetup() {
 
       // 2. Felhasználói profil létrehozása a Firestore-ban
       const profileData = {
-        name,
+        uid: firebaseUser.uid,
+        fullName: name,
         email,
         role: 'leader',
         status: 'inactive',
       };
-      await addUserProfile(firebaseUser.uid, profileData);
+      await addUserProfile(profileData);
 
       // Az App.jsx onAuthStateChanged figyelője automatikusan be fogja léptetni
     } catch (err) {

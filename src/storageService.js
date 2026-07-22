@@ -101,16 +101,36 @@ export const addLog = async (message) => {
 };
 
 export const addUserProfile = async (profileData) => {
-  const docRef = await addDoc(collection(db, 'users'), profileData);
-  await addLog(`"${profileData.name}" nevű felhasználó létrehozva.`);
-  return docRef;
+  // A dokumentum ID-ja legyen a felhasználó UID-ja a könnyebb kezelhetőségért
+  await setDoc(doc(db, 'users', profileData.uid), profileData);
+  await addLog(`"${profileData.fullName}" nevű felhasználó létrehozva.`);
 };
 
-export const deleteUserProfile = async (userId, userName) => {
-  // Figyelem: Ez csak a Firestore profilt törli, az Auth felhasználót nem.
-  // A teljes törléshez Cloud Function szükséges.
+export const createUser = async (email, password, role, fullName, phoneNumber) => {
+  // 1. Felhasználó létrehozása az Authentication rendszerben
+  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  const firebaseUser = userCredential.user;
+
+  // 2. Felhasználói profil létrehozása a Firestore-ban
+  const profileData = {
+    uid: firebaseUser.uid,
+    fullName,
+    email,
+    phoneNumber,
+    role,
+    status: 'inactive',
+    mustChangePassword: true, // Az új felhasználóknak kötelező jelszót változtatniuk
+  };
+  await addUserProfile(profileData);
+  return firebaseUser;
+};
+
+export const deleteUser = async (userId) => {
+  // Figyelem: Ez csak a Firestore profilt törli.
+  // Az Auth felhasználó törléséhez Cloud Function szükséges,
+  // mert ez egy adminisztrátori művelet, amit kliens oldalról biztonsági okokból nem lehet végrehajtani.
+  // A jelenlegi implementáció csak a Firestore adatbázisból törli a felhasználót.
   await deleteDoc(doc(db, 'users', userId));
-  await addLog(`"${userName}" nevű felhasználó törölve.`);
 };
 
 export const addMission = async (missionData) => {
